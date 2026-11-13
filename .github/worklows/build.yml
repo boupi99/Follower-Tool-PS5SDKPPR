@@ -6,20 +6,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y clang-18 lld-18 make python3 git
-        
+        sudo apt-get install -y clang lld make
+
     - name: Clone SDK
       run: git clone https://github.com/ps5-payload-dev/sdk.git ps5-payload-sdk
-      
+
     - name: Build Payload
       run: |
-        export PS5_PAYLOAD_SDK=$PWD/ps5-payload-sdk
-        clang-18 --target=x86_64-scei-ps5 -isystem $PS5_PAYLOAD_SDK/target/include -o ppr_sniffer.elf ppr_sniffer.c
-        
+        export PS5_PAYLOAD_SDK=$(pwd)/ps5-payload-sdk
+        printf 'PS5_PAYLOAD_SDK ?= $(CURDIR)/ps5-payload-sdk\ninclude $(PS5_PAYLOAD_SDK)/toolchain.mk\nPAYLOAD := ppr_sniffer.elf\nOBJS := ppr_sniffer.o\nall: $(PAYLOAD)\n$(PAYLOAD): $(OBJS)\n\t$(CC) $(LDFLAGS) -o $@ $^\nclean:\n\trm -f $(OBJS) $(PAYLOAD)\n-include $(PS5_PAYLOAD_SDK)/rules.mk\n' > Makefile
+        make
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
