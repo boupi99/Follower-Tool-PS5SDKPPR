@@ -18,8 +18,7 @@ jobs:
     - name: Build Payload
       run: |
         export PS5_PAYLOAD_SDK=$(pwd)/ps5-payload-sdk
-        printf 'PS5_PAYLOAD_SDK ?= $(CURDIR)/ps5-payload-sdk\ninclude $(PS5_PAYLOAD_SDK)/toolchain.mk\nPAYLOAD := ppr_sniffer.elf\nOBJS := ppr_sniffer.o\nall: $(PAYLOAD)\n$(PAYLOAD): $(OBJS)\n\t$(CC) $(LDFLAGS) -o $@ $^\nclean:\n\trm -f $(OBJS) $(PAYLOAD)\n-include $(PS5_PAYLOAD_SDK)/rules.mk\n' > Makefile
-        make
+        $PS5_PAYLOAD_SDK/target/bin/x86_64-scei-ps5-clang --target=x86_64-scei-ps5 -isystem $PS5_PAYLOAD_SDK/target/include -o ppr_sniffer.elf ppr_sniffer.c
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
